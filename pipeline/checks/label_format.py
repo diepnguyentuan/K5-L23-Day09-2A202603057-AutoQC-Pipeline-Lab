@@ -44,7 +44,7 @@ def run(ds, cfg):
         for line_no, ln in lines:
             try:
                 cls_id, x, y, w, h = parse_yolo_line(ln)
-            except ValueError as e:
+            except (ValueError, OverflowError) as e:
                 issues.append(Issue("label_format", ERROR, "BAD_FORMAT", stem, f"sai định dạng YOLO: {e}", line=line_no))
                 continue
 

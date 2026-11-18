@@ -32,7 +32,12 @@ def decide(issues, image_stems, cfg, reviewed=frozenset()):
         if i.severity == WARN and i.image in stems and i.image not in reviewed_set
     }
     n_warn_images = len(warn_images)
-    warn_ratio = round(n_warn_images / n_images, 4) if n_images > 0 else 0.0
+    warn_ratio = n_warn_images / n_images if n_images > 0 else 0.0
+    shown_ratio = f"{warn_ratio:.1%}"
+    shown_threshold = f"{hold_thr:.1%}"
+    if shown_ratio == shown_threshold and warn_ratio != hold_thr:
+        shown_ratio = f"{warn_ratio:.6%}"
+        shown_threshold = f"{hold_thr:.6%}"
 
     if n_errors > 0:
         decision = "Rework"
@@ -40,12 +45,12 @@ def decide(issues, image_stems, cfg, reviewed=frozenset()):
     elif warn_ratio >= hold_thr:
         decision = "Hold"
         reasons = [
-            f"{n_warn_images}/{n_images} ảnh ({warn_ratio:.1%}) còn cảnh báo chưa duyệt >= ngưỡng {hold_thr:.1%}"
+            f"{n_warn_images}/{n_images} ảnh ({shown_ratio}) còn cảnh báo chưa duyệt >= ngưỡng {shown_threshold}"
         ]
     else:
         decision = "Release"
         reasons = [
-            f"0 lỗi bắt buộc; {n_warn_images}/{n_images} ảnh ({warn_ratio:.1%}) còn cảnh báo < ngưỡng {hold_thr:.1%}"
+            f"0 lỗi bắt buộc; {n_warn_images}/{n_images} ảnh ({shown_ratio}) còn cảnh báo < ngưỡng {shown_threshold}"
         ]
 
     return {
@@ -53,6 +58,6 @@ def decide(issues, image_stems, cfg, reviewed=frozenset()):
         "n_errors": n_errors,
         "n_warn_images": n_warn_images,
         "n_images": n_images,
-        "warn_ratio": warn_ratio,
+        "warn_ratio": round(warn_ratio, 4),
         "reasons": reasons,
     }

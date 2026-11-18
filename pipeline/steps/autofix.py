@@ -143,7 +143,7 @@ def fix(ds, issues, cfg):
                 changed = True
                 try:
                     cls_id, x, y, w, h = parse_yolo_line(raw)
-                except ValueError:
+                except (ValueError, OverflowError):
                     fixes.append({
                         "image": stem,
                         "line": line_no,
@@ -157,15 +157,15 @@ def fix(ds, issues, cfg):
                 y1 = max(0.0, min(1.0, y - h / 2))
                 x2 = max(0.0, min(1.0, x + w / 2))
                 y2 = max(0.0, min(1.0, y + h / 2))
-                nw = x2 - x1
-                nh = y2 - y1
+                nw = round(x2 - x1, 6)
+                nh = round(y2 - y1, 6)
                 if nw <= 0.0 or nh <= 0.0:
                     fixes.append({
                         "image": stem,
                         "line": line_no,
                         "action": "drop_line",
                         "before": raw,
-                        "after": "(đã xoá: ngoài ảnh)",
+                        "after": "(đã xoá: box không còn diện tích sau cắt)",
                     })
                     continue
 

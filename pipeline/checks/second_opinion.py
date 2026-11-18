@@ -70,7 +70,7 @@ def run(ds, cfg, preds=None):
         for line_no, ln in raw_lines:
             try:
                 cls_id, cx, cy, w, h = parse_yolo_line(ln)
-            except ValueError:
+            except (ValueError, OverflowError):
                 continue
             if 0 <= cls_id < n_classes:
                 valid_labels.append((line_no, cls_id, (cx, cy, w, h)))
